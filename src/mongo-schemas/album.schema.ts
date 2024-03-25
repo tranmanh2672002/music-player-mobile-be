@@ -1,10 +1,8 @@
-import { User } from './user.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { MongoCollection } from 'src/common/constants';
-import { Document, Types, SchemaTypes } from 'mongoose';
+import { Document } from 'mongoose';
 import { MongoBaseSchema } from './base.schema';
 import MongooseDelete from 'mongoose-delete';
-import { Song } from './song.schema';
 
 export type AlbumDocument = Album & Document;
 
@@ -26,17 +24,15 @@ export class Album extends MongoBaseSchema {
     name: string;
     @Prop({
         required: true,
-        type: SchemaTypes.ObjectId,
-        ref: User.name,
+        type: String,
     })
-    userId: Types.ObjectId;
+    deviceId: string;
     @Prop({
         required: true,
-        type: [SchemaTypes.ObjectId],
-        ref: Song.name,
+        type: [String],
         default: [],
     })
-    songIds: Types.ObjectId[];
+    songIds: string[];
 }
 
 export const AlbumSchema = SchemaFactory.createForClass(Album);

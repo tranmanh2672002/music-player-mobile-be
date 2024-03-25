@@ -3,11 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { createWinstonLogger } from 'src/common/services/winston.service';
 import { MODULE_NAME } from '../album.constant';
 import { AlbumRepo } from '@/repositories/album.repo';
+import { IAlbumCreate } from '../album.interface';
+import { MusicService } from '@/modules/music/services/music.youtube.service';
 
 @Injectable()
-export class PlaylistService {
+export class AlbumService {
     constructor(
         private readonly configService: ConfigService,
+        private readonly musicService: MusicService,
         private readonly albumRepo: AlbumRepo,
     ) {}
     private readonly logger = createWinstonLogger(
@@ -15,10 +18,10 @@ export class PlaylistService {
         this.configService,
     );
 
-    async getList(userId: string) {
+    async getList(deviceId: string) {
         try {
-            const playlists = await this.albumRepo.find({ userId });
-            return playlists;
+            const albums = await this.albumRepo.find({ deviceId });
+            return albums;
         } catch (error) {
             this.logger.error('Error get list in album service', error);
             throw error;
@@ -27,7 +30,19 @@ export class PlaylistService {
 
     async getDetail(id: string) {
         try {
-            const album = await this.albumRepo.findById(id).populate('songIds');
+            const album = await this.albumRepo.findById(id).lean();
+            if (album.songIds?.length) {
+                const { songIds, ...rest } = album;
+                const songs = await Promise.all(
+                    songIds.map((id: string) => {
+                        return this.musicService.getDetail(id);
+                    }),
+                );
+                return {
+                    ...rest,
+                    songs,
+                };
+            }
             return album;
         } catch (error) {
             this.logger.error('Error get in album service', error);
@@ -45,9 +60,22 @@ export class PlaylistService {
         }
     }
 
-    async create(userId: string, name: string) {
+    async isExistedByDeviceId(id: string) {
         try {
-            const album = await this.albumRepo.create({ userId, name });
+            const album = await this.albumRepo.findOne({ deviceId: id });
+            return album;
+        } catch (error) {
+            this.logger.error(
+                'Error isExistedByDeviceId in album service',
+                error,
+            );
+            throw error;
+        }
+    }
+
+    async create(data: IAlbumCreate) {
+        try {
+            const album = await this.albumRepo.create(data);
             return album;
         } catch (error) {
             this.logger.error('Error create in album service', error);
@@ -65,10 +93,10 @@ export class PlaylistService {
         }
     }
 
-    async addSongIdToPlaylist(playlistId: string, songId: string) {
+    async addSongIdToAlbum(albumId: string, songId: string) {
         try {
             const result = await this.albumRepo.findByIdAndUpdate(
-                playlistId,
+                albumId,
                 { $addToSet: { songIds: songId } },
                 { new: true },
             );
@@ -82,10 +110,10 @@ export class PlaylistService {
         }
     }
 
-    async removeSongIdToPlaylist(playlistId: string, songId: string) {
+    async removeSongIdToAlbum(albumId: string, songId: string) {
         try {
             const result = await this.albumRepo.findByIdAndUpdate(
-                playlistId,
+                albumId,
                 { $pull: { songIds: songId } },
                 { new: true },
             );

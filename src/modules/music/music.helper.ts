@@ -25,5 +25,6 @@ export const convertToMusicYoutubeSongDetail = (
         title: data?.title,
         artist: data?.author?.name,
         thumbnails: data?.thumbnails,
+        duration: data?.lengthSeconds,
     };
 };

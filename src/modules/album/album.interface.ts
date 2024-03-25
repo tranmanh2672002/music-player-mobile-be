@@ -4,6 +4,7 @@ export interface IAlbum {
 }
 
 export interface IAlbumCreate {
+    deviceId: string;
     name: string;
 }
 

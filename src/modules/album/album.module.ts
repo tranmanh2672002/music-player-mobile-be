@@ -1,5 +1,5 @@
 import { MusicService } from '../music/services/music.youtube.service';
-import { PlaylistService } from './services/album.service';
+import { AlbumService } from './services/album.service';
 import { Module } from '@nestjs/common';
 import { AlbumController } from './album.controller';
 import { JwtService } from '@nestjs/jwt';
@@ -20,7 +20,7 @@ import { SongService } from '../song/services/song.service';
     ],
     controllers: [AlbumController],
     providers: [
-        PlaylistService,
+        AlbumService,
         JwtService,
         AlbumRepo,
         SongRepo,
@@ -28,7 +28,7 @@ import { SongService } from '../song/services/song.service';
         MusicClient,
         SongService,
     ],
-    exports: [PlaylistService],
+    exports: [AlbumService],
 })
 export class AlbumModule {
     //
