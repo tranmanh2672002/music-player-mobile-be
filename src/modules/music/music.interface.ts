@@ -18,15 +18,7 @@ export interface IMusicYoutubeSongDetail {
     id: string;
     url: string;
     title: string;
-    artist: {
-        id: string;
-        name: string;
-        thumbnails: {
-            url: string;
-            width: number;
-            height: number;
-        }[];
-    };
+    artist: string;
     thumbnails: {
         url: string;
         width: number;

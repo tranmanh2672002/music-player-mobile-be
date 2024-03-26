@@ -8,10 +8,10 @@ import {
     InternalServerErrorException,
     Param,
     Post,
-    UseInterceptors,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/common/pipe/joi.validation.pipe';
 import { MusicService } from '../music/services/music.youtube.service';
+import { SongService } from '../song/services/song.service';
 import { IAlbumAddSong, IAlbumCreate } from './album.interface';
 import {
     albumAddSongSchema,
@@ -19,12 +19,12 @@ import {
     albumRemoveSongSchema,
 } from './album.validator';
 import { AlbumService } from './services/album.service';
-import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('album')
 export class AlbumController {
     constructor(
         private readonly albumService: AlbumService,
+        private readonly songService: SongService,
         private readonly musicService: MusicService,
     ) {}
 
@@ -38,18 +38,9 @@ export class AlbumController {
         }
     }
 
-    @UseInterceptors(CacheInterceptor)
     @Get('/get-detail/:id')
-    async getDetail(@Param('id') id: string) {
+    async getDetail(@Param('id') id) {
         try {
-            const isExisted = await this.albumService.get(id);
-            if (!isExisted) {
-                return new ErrorResponse(
-                    HttpStatus.NOT_FOUND,
-                    'Album not exists',
-                    [],
-                );
-            }
             const album = await this.albumService.getDetail(id);
             return new SuccessResponse(album);
         } catch (error) {
@@ -72,12 +63,12 @@ export class AlbumController {
 
     @Post('/add-song/:id')
     async addSong(
-        @Param('id') albumId: string,
+        @Param('id') playlistId: string,
         @Body(new JoiValidationPipe(albumAddSongSchema))
         body: IAlbumAddSong,
     ) {
         try {
-            const album = await this.albumService.get(albumId);
+            const album = await this.albumService.get(playlistId);
             if (!album) {
                 return new ErrorResponse(
                     HttpStatus.NOT_FOUND,
@@ -85,18 +76,34 @@ export class AlbumController {
                     [],
                 );
             }
-            // check youtubeId existed
-            const data = await this.musicService.getDetail(body.youtubeId);
-            if (!data) {
-                return new ErrorResponse(
-                    HttpStatus.NOT_FOUND,
-                    'Music not exists',
-                    [],
-                );
+            // check song in database has youtubeId
+            const song = await this.songService.getByYoutubeId(body?.youtubeId);
+            if (!song) {
+                const data = await this.musicService.getDetail(body.youtubeId);
+                if (data) {
+                    const newSong = await this.songService.create({
+                        name: data?.title,
+                        artist: data?.artist,
+                        youtubeId: body?.youtubeId,
+                        thumbnails: data?.thumbnails,
+                        duration: data?.duration,
+                    });
+                    const result = await this.albumService.addSongIdToAlbum(
+                        playlistId,
+                        newSong._id,
+                    );
+                    return new SuccessResponse(result);
+                } else {
+                    return new ErrorResponse(
+                        HttpStatus.NOT_FOUND,
+                        'Music not exists',
+                        [],
+                    );
+                }
             }
             const result = await this.albumService.addSongIdToAlbum(
-                albumId,
-                body.youtubeId,
+                playlistId,
+                song._id,
             );
             return new SuccessResponse(result);
         } catch (error) {
@@ -106,12 +113,12 @@ export class AlbumController {
 
     @Post('/remove-song/:id')
     async removeSong(
-        @Param('id') albumId: string,
+        @Param('id') playlistId: string,
         @Body(new JoiValidationPipe(albumRemoveSongSchema))
-        body: { youtubeId: string },
+        body: { id: string },
     ) {
         try {
-            const album = await this.albumService.get(albumId);
+            const album = await this.albumService.get(playlistId);
             if (!album) {
                 return new ErrorResponse(
                     HttpStatus.NOT_FOUND,
@@ -119,9 +126,18 @@ export class AlbumController {
                     [],
                 );
             }
+            // check song in database has youtubeId
+            const song = await this.songService.getById(body?.id);
+            if (!song) {
+                return new ErrorResponse(
+                    HttpStatus.NOT_FOUND,
+                    'Song not exists',
+                    [],
+                );
+            }
             const result = await this.albumService.removeSongIdToAlbum(
-                albumId,
-                body.youtubeId,
+                playlistId,
+                song._id,
             );
             return new SuccessResponse(result);
         } catch (error) {

@@ -11,5 +11,5 @@ export const albumAddSongSchema = Joi.object().keys({
 });
 
 export const albumRemoveSongSchema = Joi.object().keys({
-    youtubeId: Joi.string().max(INPUT_TEXT_MAX_LENGTH).required(),
+    id: Joi.string().max(INPUT_TEXT_MAX_LENGTH).required(),
 });

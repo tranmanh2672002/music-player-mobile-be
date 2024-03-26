@@ -30,20 +30,15 @@ export class AlbumService {
 
     async getDetail(id: string) {
         try {
-            const album = await this.albumRepo.findById(id).lean();
-            if (album.songIds?.length) {
-                const { songIds, ...rest } = album;
-                const songs = await Promise.all(
-                    songIds.map((id: string) => {
-                        return this.musicService.getDetail(id);
-                    }),
-                );
-                return {
-                    ...rest,
-                    songs,
-                };
-            }
-            return album;
+            const album = await this.albumRepo
+                .findById(id)
+                .populate('songIds')
+                .lean();
+            const { songIds, ...rest } = album;
+            return {
+                ...rest,
+                songs: songIds,
+            };
         } catch (error) {
             this.logger.error('Error get in album service', error);
             throw error;
