@@ -14,7 +14,6 @@ import { createWinstonLogger } from 'src/common/services/winston.service';
 import { User, UserDocument } from 'src/mongo-schemas/user.schema';
 import {
     MODULE_NAME,
-    RECENTLY_MUSIC_LIMIT,
     SystemRole,
     SystemRoleFilter,
     userAttributes,
@@ -26,6 +25,7 @@ import {
 } from '../user.interface';
 import { UserRepo } from '@/repositories/user.repo';
 import { MusicService } from '@/modules/music/services/music.youtube.service';
+import { RECENTLY_MUSIC_LIMIT } from '@/modules/song copy/recently.constant';
 
 @Injectable()
 export class UserMongoService {

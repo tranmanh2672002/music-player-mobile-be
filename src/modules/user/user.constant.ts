@@ -25,5 +25,3 @@ export enum UserField {
     EMAIL = 'email',
     SYSTEM_ROLE = 'systemRole',
 }
-
-export const RECENTLY_MUSIC_LIMIT = 30;

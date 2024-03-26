@@ -125,4 +125,5 @@ export enum MongoCollection {
     SONGS = 'songs',
     ALBUMS = 'albums',
     POSTS = 'posts',
+    RECENTLY = 'recently',
 }

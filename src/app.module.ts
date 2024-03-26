@@ -16,6 +16,7 @@ import { MusicModule } from './modules/music/music.module';
 import { AlbumModule } from './modules/album/album.module';
 import { SongModule } from './modules/song/song.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RecentlyModule } from './modules/song copy/recently.module';
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { CacheModule } from '@nestjs/cache-manager';
         MusicModule,
         AlbumModule,
         SongModule,
+        RecentlyModule,
     ],
     controllers: [AppController],
     providers: [
