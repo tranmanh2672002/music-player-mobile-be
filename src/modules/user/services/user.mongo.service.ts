@@ -25,7 +25,7 @@ import {
 } from '../user.interface';
 import { UserRepo } from '@/repositories/user.repo';
 import { MusicService } from '@/modules/music/services/music.youtube.service';
-import { RECENTLY_MUSIC_LIMIT } from '@/modules/song copy/recently.constant';
+import { RECENTLY_MUSIC_LIMIT } from '@/modules/recently/recently.constant';
 
 @Injectable()
 export class UserMongoService {

@@ -39,7 +39,7 @@ export class RecentlyController {
     }
 
     @Post('/add/:id')
-    async create(
+    async add(
         @Param('id') deviceId: string,
         @Body(new JoiValidationPipe(recentlyCreateSchema))
         body: { id: string },
@@ -90,7 +90,7 @@ export class RecentlyController {
     }
 
     @Patch('/delete/:id')
-    async delete(
+    async remove(
         @Param('id')
         deviceId: string,
         @Body()

@@ -7,6 +7,7 @@ import {
     Get,
     InternalServerErrorException,
     Param,
+    Patch,
     Post,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/common/pipe/joi.validation.pipe';
@@ -140,6 +141,28 @@ export class AlbumController {
                 song._id,
             );
             return new SuccessResponse(result);
+        } catch (error) {
+            return new InternalServerErrorException(error);
+        }
+    }
+
+    @Patch('/update/:id')
+    async update(
+        @Param('id') id: string,
+        @Body(new JoiValidationPipe(albumCreateSchema))
+        body: IAlbumCreate,
+    ) {
+        try {
+            const isExisted = await this.albumService.get(id);
+            if (!isExisted) {
+                return new ErrorResponse(
+                    HttpStatus.NOT_FOUND,
+                    'Album not exists',
+                    [],
+                );
+            }
+            const album = await this.albumService.update(id, body);
+            return new SuccessResponse(album);
         } catch (error) {
             return new InternalServerErrorException(error);
         }

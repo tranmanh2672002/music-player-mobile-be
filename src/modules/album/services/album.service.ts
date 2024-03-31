@@ -78,6 +78,20 @@ export class AlbumService {
         }
     }
 
+    async update(id: string, data: IAlbumCreate) {
+        try {
+            const album = await this.albumRepo.findOneAndUpdate(
+                { _id: id, deviceId: data.deviceId },
+                { name: data.name },
+                { new: true },
+            );
+            return album;
+        } catch (error) {
+            this.logger.error('Error create in album service', error);
+            throw error;
+        }
+    }
+
     async delete(id: string) {
         try {
             await this.albumRepo.delete({ _id: id });
