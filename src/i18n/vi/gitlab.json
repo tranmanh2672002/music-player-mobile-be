@@ -2,5 +2,6 @@
     "invalidGitToken": "Git token không hợp lệ",
     "invalidGitInformation": "Thông tin Git không hợp lệ",
     "mergeRequest.notOpen": "Trạng thái của Merge request không phải là Open",
-    "mergeRequest.conflict": "Không thể merge một Merge request có conflict"
+    "mergeRequest.conflict": "Không thể merge một Merge request có conflict",
+    "mergeRequest.forbidden": "Không được phép merge một Merge request"
 }
